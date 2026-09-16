@@ -1,0 +1,24 @@
+name: Linux packages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build && npm test
+      - run: xvfb-run -a npm run test:e2e
+      - run: npm run dist -- --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: makale-linux-x86_64
+          path: |
+            release/*.AppImage
+            release/*.tar.gz
