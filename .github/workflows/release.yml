@@ -14,7 +14,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build && npm test
-      - run: xvfb-run -a npm run test:e2e
+      - run: xvfb-run -a -s "-screen 0 1920x1080x24" npm run test:e2e
       - run: npm run dist -- --publish never
       - uses: actions/upload-artifact@v4
         with:

@@ -26,9 +26,14 @@ async function launch() {
   await page.waitForSelector(".welcome, .article-heading");
 }
 async function screenshot(options: { path: string }) {
-  await expect(async () => {
-    await page.screenshot(options);
-  }).toPass({ timeout: 5000 });
+  await page.evaluate(() => document.fonts.ready);
+  // Electron's native capture avoids intermittent CDP capture failures under Xvfb.
+  const png = await app.evaluate(async ({ BrowserWindow }) => {
+    const image = await BrowserWindow.getAllWindows()[0].capturePage();
+    if (image.isEmpty()) throw new Error("Empty desktop screenshot");
+    return image.toPNG().toString("base64");
+  });
+  await fs.writeFile(options.path, Buffer.from(png, "base64"));
 }
 async function fakeProvider() {
   await app.evaluate(() => {
