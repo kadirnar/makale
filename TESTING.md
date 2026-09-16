@@ -27,6 +27,10 @@ Live tests exposed and drove fixes for Turkish placeholder reordering and standa
 
 The light reader, dark writing workspace, report, and rendered PDF fixture were inspected. The PDF fixture contains prose, a mathematical expression, and a vector pipeline figure. The app renders the original file; translation does not rewrite PDF objects. Formula and code markup are compared between the two text panes in automated tests.
 
+## Packaged application
+
+The x86_64 release binary passed a separate smoke test for startup, sample import, MathML rendering, PDF upload, and original PDF canvas rendering. It also launched successfully with the native Electron sandbox enabled. Packaged source files were compared to the current build, and the application archive passed a scan for the supplied credential.
+
 ## Practical limits
 
 Tests verify preservation mechanics and tested workflows, not semantic correctness of every model response or PDF layout. Glossary detection is heuristic; unknown technical terminology requires user glossary entries or passage locks. Scanned PDFs need external OCR. Reports can still contain mistakes despite the review pass, particularly after summarizing very long papers; readers should verify claims against source evidence. URL import requires accessible public content and downloadable images. The packaged application is an unsigned x86_64 Linux build.
