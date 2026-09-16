@@ -25,16 +25,6 @@ async function launch() {
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.waitForSelector(".welcome, .article-heading");
 }
-async function screenshot(options: { path: string }) {
-  await page.evaluate(() => document.fonts.ready);
-  // Electron's native capture avoids intermittent CDP capture failures under Xvfb.
-  const png = await app.evaluate(async ({ BrowserWindow }) => {
-    const image = await BrowserWindow.getAllWindows()[0].capturePage();
-    if (image.isEmpty()) throw new Error("Empty desktop screenshot");
-    return image.toPNG().toString("base64");
-  });
-  await fs.writeFile(options.path, Buffer.from(png, "base64"));
-}
 async function fakeProvider() {
   await app.evaluate(() => {
     const original = globalThis.fetch;
@@ -102,7 +92,6 @@ test("complete desktop workflow: import, model, translation, report, notes, blog
   await expect(
     page.getByRole("heading", { name: "Derinlemesine okumaya yer açın." }),
   ).toBeVisible();
-  await screenshot({ path: "test-results/welcome.png" });
   await app.evaluate(({ dialog }, file) => {
     dialog.showOpenDialog = async () => ({
       canceled: false,
@@ -144,7 +133,6 @@ test("complete desktop workflow: import, model, translation, report, notes, blog
   await expect(page.locator(".translated-pane pre")).toHaveText(
     "loss = -(target * prediction.log()).sum()",
   );
-  await screenshot({ path: "test-results/reader-light.png" });
   await page.getByRole("button", { name: "AI raporu", exact: true }).click();
   await page
     .getByRole("button", { name: "Rapor oluştur", exact: true })
@@ -180,7 +168,6 @@ test("complete desktop workflow: import, model, translation, report, notes, blog
     .poll(() => fs.readFile(exportPath, "utf8"))
     .toContain("attention");
   await page.getByRole("button", { name: "Tema", exact: true }).click();
-  await screenshot({ path: "test-results/writing-dark.png" });
   await page.getByRole("button", { name: "TR", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Notes & blog", exact: true }),
@@ -222,7 +209,6 @@ test("PDF retains original figure and requires extraction review", async () => {
   ).toBeEnabled();
   await page.getByRole("button", { name: "Orijinal PDF", exact: true }).click();
   await expect(page.locator('canvas[data-rendered="true"]')).toBeVisible();
-  await screenshot({ path: "test-results/pdf-reader.png" });
 });
 test("invalid key and model failures remain actionable without losing imported source", async () => {
   await page.locator(".add-button").click();
